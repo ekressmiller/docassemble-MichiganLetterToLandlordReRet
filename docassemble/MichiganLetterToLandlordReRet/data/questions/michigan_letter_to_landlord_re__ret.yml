@@ -1,0 +1,521 @@
+include:
+  - docassemble.AssemblyLine:assembly_line.yml
+  - docassemble.ALAnyState:any_state.yml
+---
+metadata:
+  title: |
+    DIY tool for writing a Letter to Landlord (Security Deposit)
+  short title: |
+    Letter - Security Deposit
+  authors:
+    - Bianca Stella Bruschi
+---
+mandatory: True
+comment: |
+  Global interview metadata
+variable name: interview_metadata["michigan_letter_to_landlord_re__ret"]
+data:
+  al_weaver_version: "1.10.0a2"
+  generated on: "2023-04-07"
+  title: >-
+    DIY tool for writing a Letter to Landlord (Security Deposit)
+  short title: >-
+    Letter - Security Deposit
+  description: |-
+    This interview helps someone in Michigan write a Do-It-Yourself Letter to Landlord (Security Deposit).
+  allowed courts: []
+  categories: []
+  typical role: "plaintiff"
+  generate download screen: True
+---
+code: |
+  interview_metadata['main_interview_key'] =  'michigan_letter_to_landlord_re__ret'
+---
+code: |
+  # This controls the default country and list of states in address field questions
+  AL_DEFAULT_COUNTRY = "US"
+---
+code: |
+  # This controls the default state in address field questions
+  AL_DEFAULT_STATE = "MI"
+---
+code: |
+  github_repo_name =  'docassemble-MichiganLetterToLandlordReRet'
+---
+code: |
+  interview_short_title = "DIY Letter to Landlord (Security Deposit)"
+---
+code: |
+  al_form_type = "letter" 
+---
+objects:
+  - forwarding_address: ALAddress
+  - rental_address: ALAddress
+  - other_parties: ALPeopleList.using(ask_number=True,target_number=1)
+  - users: ALPeopleList.using(there_are_any=True)
+---
+sections:
+  - review_michigan_letter_to_landlord_re__ret: Review your answers
+---
+#################### Interview order #####################
+comment: |
+  Controls order and branching logic for questions specific to this form
+id: interview_order_michigan_letter_to_landlord_re__ret
+code: |
+  # Set the allowed courts for this interview
+  allowed_courts = interview_metadata["michigan_letter_to_landlord_re__ret"]["allowed courts"]
+  nav.set_section("review_michigan_letter_to_landlord_re__ret")
+  user_role = "plaintiff"
+  user_ask_role = "plaintiff"
+  informational_2
+  yesno_forwarding_address
+  if yesno_forwarding_address == False :
+    user_not_eligible
+  users.gather()
+  set_parts(subtitle=str(users))
+  forwarding_address.address
+  When_did_you_notify_your_landlord_of_your_forwarding_address
+  type_of_delivery
+  rental_address.address
+  set_progress(14)
+  When_did_you_vacate_the_property
+  How_much_was_the_deposit
+  set_progress(28)
+  set_progress(42)
+  users[0].phone_number
+  other_parties.gather()
+  set_progress(56)
+  other_parties[0].address.address
+  other_parties[0].phone_number
+  interview_order_michigan_letter_to_landlord_re__ret = True
+---
+###################### Main order ######################
+comment: |
+  This block includes the logic for standalone interviews.
+  Delete mandatory: True to include in another interview
+mandatory: True
+code: |
+  al_intro_screen
+  michigan_letter_to_landlord_re__ret_intro
+  interview_order_michigan_letter_to_landlord_re__ret
+  signature_date
+  # Store anonymous data for analytics / statistics
+  store_variables_snapshot(
+      persistent=True,
+      data={
+          "zip": showifdef("users[0].address.zip"),
+          "reached_interview_end": True,
+      },
+  )
+  michigan_letter_to_landlord_re__ret_download
+---
+comment: |
+  This question is used to introduce your interview. Please customize
+id: DIY_tool_for_writing_a_Letter_to_Landlord_Security_Deposit
+continue button field: michigan_letter_to_landlord_re__ret_intro
+question: |
+  DIY Letter to Landlord (Security Deposit)
+subquestion: |
+  This interview will help you write a personalized letter to your landlord requesting **return of your security deposit**.
+  
+  Use this tool if you:
+  
+  * you gave your previous landlord your **forwarding address** within **four days** of moving out of the home and;
+  
+  * have **not** gotten your **security deposit** from your previous landlord and;
+  
+  * it’s been more than **30 days** since you moved out of your old home.
+
+  ${ collapse_template(forwarding_address_template) }
+  
+  If you did **not** give your landlord your forwarding address within four days, the timelines in this letter do not apply and **you should not use this tool**. If that is the case, click [here](https://michiganlegalhelp.org/self-help-tools/housing/security-deposit-help-tenants) to return to the Michigan Legal Help web site to learn more.
+  
+  Otherwise, click the 'Next' button below.
+  
+---
+comment: |
+  This question is used to introduce your interview. Please customize
+id: DIY_tool_for_writing_a_Letter_to_Landlord_Security_Deposit
+continue button field: informational_2
+question: |
+  Getting ready
+subquestion: |
+  You need to have this information at hand to complete the interview: 
+  
+  * Your **contact** information (forwarding address, phone number, e-mail etc.);
+  * If **your roommates or co-tenants** are signing this letter with you, you should have their **contact** information ready (name, address, phone number);
+  * Your **landlord**'s name and **contact** information (name, address, phone number);
+  * The **rental** address you moved out from;
+  * The **amount** of the deposit; 
+
+  It should take you between **10 and 15 minutes** to finish answering all the questions. 
+  
+  Once you have answered all the questions, your **personalized letter** will be ready to print and signed. 
+  
+  If you make a mistake or you want to review your answers, you can always review your answers clicking the blue **'Review your answers'** button on the top left corner of the screen.
+  
+---
+
+# event: informational_2
+#id: informational screen 2
+#question: |
+#  Getting ready
+#subquestion: |
+#  You will have to give your **contact information** (name, address, phone number etc.) and your landlord's. You should know in advance **how much** does the deposit amount to in dollars. 
+#  
+#  It should take you between **10 and 15 minutes** to finish answering all the questions. 
+#  
+#  Once you have answered all the questions, your **personalized letter** to your landlord requesting return of your security deposit will be ready to print and be signed by you (and anyone else who is adding their name to it). 
+#  
+#  If you make a mistake, you can always review your answers clicking the blue **'Review Your Answers'** button on the top left corner of the screen.
+#continue button field: yesno_forwarding_address
+---
+---
+id: any other users
+question: |
+  % if al_form_type in ['starts_case','existing_case','appeal']:
+  Is anyone else on your side of this case?
+  % else:
+  Is anyone else adding their name to this letter with you?
+  % endif
+  
+subquestion: |
+  **If you are not the only one** trying to get your security deposit back, add the **names** of your old co-tenants who are interested in getting it back as well.
+  
+  % if len(users.elements) > 1:  
+  So far you have told us about ${comma_and_list(users.complete_elements())}.
+  % endif
+  
+
+
+fields:
+  - no label: users.there_is_another
+    datatype: yesnoradio
+---
+id: did you give forwarding address
+question: |
+  Did you give your landlord your **forwarding address** within **four days** of    moving out of your old home?
+subquestion: |
+  
+    ${ collapse_template(forwarding_address_template) }
+    
+fields: 
+  - "Forwarding Address": yesno_forwarding_address
+    datatype: yesnoradio
+---
+template: forwarding_address_template
+subject: |
+  What is my forwarding address?
+content: |
+  Within **four days** of moving out of your old home, you must give your landlord your **new address** in writing. If you don’t want to give your landlord your new address, you can provide a different forwarding address like a P.O. Box. If you do this, make sure you **regularly pick up** any mail sent to that address.
+---
+template: why_phone_info_needed_template
+subject: |
+  Why do I need to give my phone number?
+content: |
+  It is important that your landlord have another way of reaching out to you other than sending mail to your forwarding address. 
+---
+id: user not eligible 
+event: user_not_eligible
+question: You cannot use this letter to request the return of your security deposit. 
+subquestion: Please return to Michigan Legal Help and [visit the Security Deposit toolkit to learn more](https://michiganlegalhelp.org/self-help-tools/housing/security-deposit-help-tenants).
+---
+id: phone number
+question: |
+  What is your phone number?
+subquestion: |
+  ${ collapse_template(why_phone_info_needed_template) }
+fields:  
+  - Phone number: users[0].phone_number
+---
+    
+#id: What is the forwarding address that you gave to your landlord
+#question: |
+#  What is the forwarding address that you gave to your landlord?
+#fields:
+#  - "Forwarding address": forwarding_address
+#continue button field: What_is_the_forwarding_address_that_you_gave_to_your_landlord
+---
+id: forwarding address
+sets:
+  - forwarding_address.address
+  - forwarding_address.city
+  - forwarding_address.zip
+  - forwarding_address.unit
+  - forwarding_address.state
+  - forwarding_address.country
+question: |
+  What is the forwarding address you gave to your landlord?
+subquestion: |
+  Insert your forwarding address below, as given to your landlord.
+  
+  ${ collapse_template(forwarding_address_template) }
+  
+fields:
+  - code: |
+      forwarding_address.address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)  
+---
+id: When did you vacate the property
+question: |
+  When did you move out of the rental property?
+subquestion: |
+  Insert the date manually, or choose it from the drop-down calendar by clicking on the calendar icon. <i class="fa-regular fa-calendar"></i>
+fields:
+  - "Move-out date": vacation_date
+    datatype: date
+continue button field: When_did_you_vacate_the_property
+---
+id: When did you notify your landlord of your forwarding address
+question: |
+  When did you tell your landlord your forwarding address?
+subquestion: |
+  Insert the date manually, or choose it from the drop-down calendar by clicking on the calendar icon. <i class="fa-regular fa-calendar"></i>
+fields:
+  - "Date of Notification": notification_date
+    datatype: date
+continue button field: When_did_you_notify_your_landlord_of_your_forwarding_address
+---
+---
+id: How did you notify your landlord
+question: |
+  How did you tell your landlord your forwarding address?
+subquestion: |
+  Choose one of the three options.
+fields:
+  - "Type of delivery": type_of_delivery
+    input type: radio
+    choices:
+      - Hand-delivered: hand-delivered
+      - Mailed: mailed
+      - E-mailed: e-mailed
+
+---
+id: rental address
+sets:
+  - rental_address.address
+  - rental_address.city
+  - rental_address.zip
+  - rental_address.unit
+  - rental_address.state
+  - rental_address.country
+question: |
+  What is the address of the rental property you moved out from?
+subquestion: |
+  Insert the address below.  
+  
+  
+fields:
+  - code: |
+      rental_address.address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)  
+---
+id: How much was the deposit
+question: |
+  How much was the deposit?
+fields:
+  - "Deposit amount": deposit_amount
+    datatype: currency
+    min: 0
+continue button field: How_much_was_the_deposit
+---
+sets:
+  - other_parties[i].name.first
+  - other_parties[i].name.last
+  - other_parties[i].name.middle
+  - other_parties[i].name.suffix
+id: type of landlord
+question: |
+  Is your landlord a person or a business?
+# ${ ordinal(i) } ?
+fields:
+  - code: |
+      other_parties[i].name_fields(person_or_business='unsure')
+---
+---
+sets:
+  - users[i].name.first
+  - users[i].name.last
+  - users[i].name.middle
+  - users[i].name.suffix    
+id: other users names
+question: |
+  % if al_form_type in ['starts_case','existing_case','appeal']:
+  Who is the ${ ordinal(i) } person on your side of the case?
+  % else:
+  What is the name of the ${ ordinal_number(i) } person who is adding their name to
+  this letter with you?
+  % endif
+fields:
+  - code: |
+      users[i].name_fields()
+---
+#id: What is the rental s address
+question: |
+  What is the rental's address?
+subquestion: |
+ Insert the address of the unit you used to rent.
+#fields:
+#  - "Rental address": rental_address
+#continue button field: What_is_the_rentals_address
+---
+id: preview michigan_letter_to_landlord_re__ret
+question: |
+  Preview your form before you sign it
+subquestion: |
+  Here is a preview of the form you will sign on the next page.   
+  
+  ${ al_recipient_bundle.as_pdf(key='preview') }
+
+  Click the image to open it in a new tab. Click the "Edit answers" button
+  to edit your answers.
+
+  ${ action_button_html(url_action('review_michigan_letter_to_landlord_re__ret'), label='Edit answers', color='info') }
+  
+  Remember to come back to this window to continue and sign your form.
+continue button field: michigan_letter_to_landlord_re__ret_preview_question    
+---
+code: |
+  signature_fields = []
+---
+id: michigan letter to landlord re ret review screen
+event: review_michigan_letter_to_landlord_re__ret
+question: |
+  Review your answers
+review:
+  - Edit: users.revisit
+    button: |
+      **Users**
+
+      % for item in users:
+        * ${ item }
+      % endfor
+  - Edit: forwarding_address
+    button: |
+      **Forwarding address**:
+      ${ forwarding_address }
+  - Edit: other_parties.revisit
+    button: |
+      **Other parties**
+
+      % for item in other_parties:
+        * ${ item }
+      % endfor
+  - Edit: deposit_amount
+    button: |
+      **Deposit amount**:
+      ${ currency(deposit_amount) }
+  - Edit: user.name.first
+    button: |
+      **Name**:
+      ${ user.name.first }
+  - Edit: type_of_delivery
+    button: |
+      **Type of delivery**:
+      ${ type_of_delivery }
+  - Edit: rental_address
+    button: |
+      **Rental address**:
+      ${ rental_address }
+  - Edit: vacation_date
+    button: |
+      **Move-out date**:
+      ${ vacation_date }
+  - Edit: notification_date
+    button: |
+      **Date of Notification**:
+      ${ notification_date }
+---
+continue button field: users.revisit
+question: |
+  Edit users
+subquestion: |
+  ${ users.table }
+
+  ${ users.add_action() }
+---
+table: users.table
+rows: users
+columns:
+  - Name: |
+      row_item.name.full() if defined("row_item.name.first") else ""
+  - Phone number: |
+      row_item.phone_number if defined("row_item.phone_number") else ""
+      
+ 
+edit:
+  - name.first
+  - phone_number
+confirm: True
+
+---
+continue button field: other_parties.revisit
+question: |
+  Edit other_parties
+subquestion: |
+  ${ other_parties.table }
+
+  ${ other_parties.add_action() }
+---
+table: other_parties.table
+rows: other_parties
+columns:
+  - Name: |
+      row_item.name.full() if defined("row_item.name.first") else ""
+  - Address: |
+      row_item.address.block() if defined("row_item.address.address") else ""
+  - Phone number: |
+      row_item.phone_number if defined("row_item.phone_number") else ""
+edit:
+  - name.first
+  - address.address
+  - phone_number
+confirm: True
+
+---
+id: download michigan_letter_to_landlord_re__ret
+event: michigan_letter_to_landlord_re__ret_download
+question: |
+  All done
+subquestion: |
+  Thank you ${users[0].name.full()}. Your form is ready to download and deliver.
+  
+  View, download and send your form below. Click the "Edit answers" button to fix any mistakes.
+
+  ${ action_button_html(url_action('review_michigan_letter_to_landlord_re__ret'), label='Edit answers', color='info') }
+  
+  
+  ${ al_user_bundle.download_list_html() }
+  
+
+  ${ al_user_bundle.send_button_html(show_editable_checkbox=True) }
+
+progress: 100
+---
+# ALDocument objects specify the metadata for each template
+objects:
+  - michigan_letter_to_landlord_re__ret_Post_interview_instructions: ALDocument.using(title="Instructions", filename="michigan_letter_to_landlord_re__ret_next_steps.docx", enabled=True, has_addendum=False)
+  - michigan_letter_to_landlord_re__ret_attachment: ALDocument.using(title="DIY tool for writing a Letter to Landlord (Security Deposit)", filename="michigan_letter_to_landlord_re__ret", enabled=True, has_addendum=False, )
+---
+# Bundles group the ALDocuments into separate downloads, such as for court and for the user
+objects:
+  - al_user_bundle: ALDocumentBundle.using(elements=[michigan_letter_to_landlord_re__ret_Post_interview_instructions, michigan_letter_to_landlord_re__ret_attachment], filename="michigan_letter_to_landlord_re__ret", title="All forms to download for your records", enabled=True)
+  - al_recipient_bundle: ALDocumentBundle.using(elements=[michigan_letter_to_landlord_re__ret_attachment],  filename="michigan_letter_to_landlord_re__ret", title="All forms to file", enabled=True)
+---
+# Each attachment defines a key in an ALDocument. We use `i` as the placeholder here so the same template is 
+# used for "preview" and "final" keys, and logic in the template checks the value of 
+# `i` to show or hide the user's signature
+attachment:
+  name: Post-interview-Instructions
+  filename: michigan_letter_to_landlord_re__ret_next_steps
+  docx template file: michigan_letter_to_landlord_re__ret_next_steps.docx
+  variable name: michigan_letter_to_landlord_re__ret_Post_interview_instructions[i]
+  skip undefined: True
+---
+attachment:
+  name: michigan letter to landlord re  ret
+  filename: michigan_letter_to_landlord_re__ret
+  variable name: michigan_letter_to_landlord_re__ret_attachment[i]
+  skip undefined: True
+  docx template file: michigan_letter_to_landlord_re__ret.docx
+
+
+
