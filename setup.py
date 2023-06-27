@@ -54,7 +54,7 @@ setup(name='docassemble.MichiganLetterToLandlordReRet',
       url='https://courtformsonline.org',
       packages=find_packages(),
       namespace_packages=['docassemble'],
-      install_requires=['docassemble.ALAnyState', 'docassemble.AssemblyLine>=2.21.0'],
+      install_requires=['docassemble.ALAnyState', 'docassemble.AssemblyLine>=2.22.2'],
       zip_safe=False,
       package_data=find_package_data(where='docassemble/MichiganLetterToLandlordReRet/', package='docassemble.MichiganLetterToLandlordReRet'),
      )
