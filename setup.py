@@ -44,7 +44,7 @@ def find_package_data(where='.', package='', exclude=standard_exclude, exclude_d
     return out
 
 setup(name='docassemble.MichiganLetterToLandlordReRet',
-      version='1.0',
+      version='0.2',
       description=('DIY tool for writing a Letter to Landlord (Security Deposit)'),
       long_description='# docassemble.MichiganLetterToLandlordReRet\r\n\r\nDIY tool for writing a Letter to Landlord (Security Deposit)\r\n\r\n## Author\r\n\r\nBianca Stella Bruschi\r\n\r\n',
       long_description_content_type='text/markdown',
