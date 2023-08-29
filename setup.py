@@ -44,17 +44,17 @@ def find_package_data(where='.', package='', exclude=standard_exclude, exclude_d
     return out
 
 setup(name='docassemble.MichiganLetterToLandlordReRet',
-      version='0.2',
+      version='0.4',
       description=('DIY tool for writing a Letter to Landlord (Security Deposit)'),
-      long_description='# docassemble.MichiganLetterToLandlordReRet\r\n\r\nDIY tool for writing a Letter to Landlord (Security Deposit)\r\n\r\n## Author\r\n\r\nBianca Stella Bruschi\r\n\r\n',
+      long_description='# docassemble.MichiganLetterToLandlordReRet\r\n\r\nDIY tool for writing a Letter to Landlord (Security Deposit)\r\n\r\n## Author\r\n\r\nAug 2023  Refactor and complete. Brett Harrison\r\n2023      Initial dev by Suffolk member Bianca Stella Bruschi\r\n\r\n',
       long_description_content_type='text/markdown',
-      author='Bianca Stella Bruschi',
-      author_email='Bianca.bruschi@su.suffolk.edu',
+      author='Brett Harrison',
+      author_email='harrison.brett.m@gmail.com',
       license='The MIT License',
-      url='https://courtformsonline.org',
+      url='https://michiganlegalhelp.org/resources/housing',
       packages=find_packages(),
       namespace_packages=['docassemble'],
-      install_requires=['docassemble.ALAnyState', 'docassemble.AssemblyLine>=2.22.2'],
+      install_requires=['docassemble.ALAnyState>=0.1.0', 'docassemble.AssemblyLine>=2.24.0'],
       zip_safe=False,
       package_data=find_package_data(where='docassemble/MichiganLetterToLandlordReRet/', package='docassemble.MichiganLetterToLandlordReRet'),
      )
