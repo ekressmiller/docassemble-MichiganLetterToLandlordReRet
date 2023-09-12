@@ -4,6 +4,10 @@ include:
   - docassemble.mlhframeworkBH:mlh_interview_framework.yml
 
 ---
+modules:
+  - datetime
+
+---
 # docassemble-level metadata
 # See https://docassemble.org/docs/initial.html
 metadata:
@@ -68,6 +72,7 @@ code: |
   nav.set_section("section_intro")
   user_role = "plaintiff"
   user_ask_role = "plaintiff"
+  
   MLH_standard_intro_pages
   intro_what_you_need
   nav.set_section("section_tenant")
@@ -98,6 +103,8 @@ code: |
   nav.set_section("section_done")
   interview_order_letter_to_landlord_security = True
   MLH_outro_saving_answers
+  if not thirty_days or (vacation_date + timedelta(days=30) > today()):
+    letter_date_notification
   MLH_outro_download_forms
 
   # Store anonymous data for analytics / statistics
@@ -166,11 +173,10 @@ subquestion: |
 
 ---
 id: thirty days
-question: Did you move out more than 30 days ago?
-field: thirty_days
-buttons:
-  - Yes: True
-  - No: False
+question: Did you move out more than 30 days ago (before ${ today() - timedelta(days=30) } )?
+fields:
+  - no label: thirty_days
+    datatype: yesnoradio
 ---
 id: thirty days not passed
 continue button field: thirty_days_not_passed
@@ -184,10 +190,9 @@ question: |
   Did you give your landlord your **forwarding address** within **four days** of moving out of your old home?
 subquestion: |
   ${ collapse_template(forwarding_address_template) }
-field: yesno_forwarding_address
-buttons:
-  - "Yes": True
-  - "No": False
+fields:
+  - no label: yesno_forwarding_address
+    datatype: yesnoradio
 ---
 template: forwarding_address_template
 subject: |
@@ -204,10 +209,9 @@ subquestion: Please return to Michigan Legal Help and [visit the Security Deposi
 ---
 id: any deposit returned
 question: Has your landlord returned your security deposit or given you an itemized list of damages?
-field: any_deposit_returned
-buttons:
-  - Yes: True
-  - No: False
+fields:
+  - no label: any_deposit_returned
+    datatype: yesnoradio
 ---
 id: deposit returned kickout
 continue button field: deposit_returned_kickout
@@ -253,20 +257,42 @@ code: |
 ---
 id: any other users
 question: |
-  Was there another tenant on the lease with you who should also be included in this letter?
+  Are there any other tenants?
 subquestion: |
-  % if len(users.elements) > 1:
-  **So far you have told us about ${comma_and_list(users.complete_elements())}.**
-  % endif
-  
   **If you are not the only ${ one_ones() }** trying to get your security deposit back, add the **names** of your old co-tenants who are interested in getting it back as well. Only adults who signed the lease or who were part of the rental agreement should be included in this letter.
-#fields:
-#  - no label: users.there_is_another
-#    datatype: yesnoradio
-field: users.there_is_another
-buttons:
-  - Yes: True
-  - No: False
+
+  % if len(users.elements) > 1:
+  **Other than ${comma_and_list(users.complete_elements())}, are there any other tenants on the lease who should also be included in this letter?**
+  % else:
+  **Are there any other tenants on the lease who should also be included in this letter?**
+  % endif
+fields:
+  - no label: users.there_is_another
+    datatype: yesnoradio
+
+---
+sets:
+  - users[i].name.first
+  - users[i].name.last
+  - users[i].name.middle
+  - users[i].name.suffix
+id: other users names
+question: |
+  ${ capitalize(ordinal_number(i)) } other tenant
+subquestion: |
+  % if al_form_type in ['starts_case','existing_case','appeal']:
+  Who is the ${ ordinal(i) } person on your side of the case?
+  % else:
+  What is the name of the ${ ordinal_number(i) } other person who is adding their name to 
+  this letter with you?
+  % endif
+  % if len(users.elements) > 2:
+  *So far you have told us about ${comma_and_list(users.complete_elements())}.*
+  % endif
+fields:
+  - code: |
+      users[i].name_fields()
+
 ---
 id: forwarding address
 sets:
@@ -332,8 +358,6 @@ sets:
   - rental_address.country
 question: |
   What is the address of the rental property you moved out from?
-subquestion: |
-  Enter the address below.
 fields:
   - code: |
       rental_address.address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)  
@@ -394,27 +418,24 @@ fields:
       x.address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
 
 ---
-sets:
-  - users[i].name.first
-  - users[i].name.last
-  - users[i].name.middle
-  - users[i].name.suffix
-id: other users names
-question: |
-  % if al_form_type in ['starts_case','existing_case','appeal']:
-  Who is the ${ ordinal(i) } person on your side of the case?
-  % else:
-  What is the name of the ${ ordinal_number(i) } person who is adding their name to
-  this letter with you?
-  % endif
-fields:
-  - code: |
-      users[i].name_fields()
+id: letter date
+question: Letter date in the future
+subquestion: |
+  Because it has not been 30 days since you moved out, the date shown on your letter will be ${ letter_date }. **Do not send your letter before that date!**
+continue button field: letter_date_notification
+
+---
+reconsider: True
+code: |
+  if not thirty_days or (vacation_date + timedelta(days=30) > today()):
+    letter_date = vacation_date + timedelta(days=30)
+  else:
+    letter_date = today()
 
 ---
 # Overrides framework question
 id: MLH outro download forms
-mandatory: false
+mandatory: true
 question: |
   Download Your ${ MLH_form_type.capitalize() }
   % if MLH_instructions_included:
@@ -479,14 +500,14 @@ review:
         * ${ item }
       % endfor
 
-  - Edit: forwarding_address
+  - Edit: forwarding_address.address
     button: |
-      **Forwarding address**:
+      **Forwarding Address**
 
       ${ forwarding_address }
   - Edit: other_parties.revisit
     button: |
-      **Other parties**
+      **Landlord Information**
 
       % for item in other_parties:
         * ${ item }
@@ -495,20 +516,20 @@ review:
       % endfor
   - Edit: deposit_amount
     button: |
-      **Deposit amount**:
+      **Deposit Amount**:
       ${ currency(deposit_amount) }
   - Edit: type_of_delivery
     button: |
-      **Type of delivery**:
+      **Type of Delivery**:
       ${ type_of_delivery }
   - Edit: rental_address.address
     button: |
-      **Rental address**:
+      **Rental Address**:
 
       ${ rental_address }
   - Edit: vacation_date
     button: |
-      **Move-out date**:
+      **Move-out Date**:
       ${ vacation_date }
   - Edit: notification_date
     button: |
@@ -518,7 +539,7 @@ review:
 ---
 continue button field: users.revisit
 question: |
-  Edit users
+  Edit Tenants
 subquestion: |
   ${ users.table }
 
@@ -539,11 +560,11 @@ confirm: True
 ---
 continue button field: other_parties.revisit
 question: |
-  Edit other_parties
+  Edit landlord information
 subquestion: |
   ${ other_parties.table }
 
-  ${ other_parties.add_action() }
+  #${ other_parties.add_action() }
 ---
 table: other_parties.table
 rows: other_parties
@@ -561,22 +582,6 @@ edit:
 confirm: True
 
 ---
-id: edit rental information
-question: |
-  Review Rental Information
-subquestion:
-  Make any necessary changes below
-review:
-  - Edit: rental_address
-    button: |
-      **Rental Address**
-      ${ rental_address }
-  - Edit: vacation_date
-    button: |
-      **Move-out date**
-      ${ vacation_date }
-
----
 id: download letter_to_landlord_security
 event: download_page
 question: |
@@ -591,7 +596,6 @@ subquestion: |
   
   ${ al_user_bundle.download_list_html() }
   
-
   ${ al_user_bundle.send_button_html(show_editable_checkbox=True) }
 
 #progress: 100
@@ -599,12 +603,18 @@ subquestion: |
 # # # # # # # # # # # # # # Documents # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # Documents # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # Documents # # # # # # # # # # # # # # # #
+---
+generic object: ALDocumentBundle
+template: x.include_editable_documents
+content: |
+  Include an editable copy and stuff and things
+
 
 ---
 # ALDocument objects specify the metadata for each template
 objects:
   - letter_to_landlord_security_Post_interview_instructions: ALDocument.using(title="Instructions", filename="letter_to_landlord_security_next_steps.docx", enabled=True, has_addendum=False)
-  - letter_to_landlord_security_attachment: ALDocument.using(title=MLH_interview_title, filename="letter_to_landlord_security", enabled=True, has_addendum=False, )
+  - letter_to_landlord_security_attachment: ALDocument.using(title=MLH_interview_title, filename="letter_to_landlord_security", enabled=True, has_addendum=False)
 
 ---
 # Bundles group the ALDocuments into separate downloads, such as for court and for the user
@@ -619,8 +629,8 @@ objects:
 attachment:
   name: Post-interview-Instructions
   filename: letter_to_landlord_security_next_steps
-  docx template file: letter_to_landlord_security_next_steps.docx
   variable name: letter_to_landlord_security_Post_interview_instructions[i]
+  docx template file: letter_to_landlord_security_next_steps.docx
   skip undefined: True
 
 ---
@@ -628,5 +638,5 @@ attachment:
   name: letter to landlord
   filename: letter_to_landlord_security
   variable name: letter_to_landlord_security_attachment[i]
-  skip undefined: True
   docx template file: letter_to_landlord_security.docx
+  skip undefined: False
