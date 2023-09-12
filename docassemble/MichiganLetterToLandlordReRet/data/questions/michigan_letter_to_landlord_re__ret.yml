@@ -435,7 +435,7 @@ code: |
 ---
 # Overrides framework question
 id: MLH outro download forms
-mandatory: true
+mandatory: false
 question: |
   Download Your ${ MLH_form_type.capitalize() }
   % if MLH_instructions_included:
