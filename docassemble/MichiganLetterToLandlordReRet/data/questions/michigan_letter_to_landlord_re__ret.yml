@@ -1,7 +1,7 @@
 include:
   - docassemble.AssemblyLine:assembly_line.yml
   - docassemble.ALAnyState:any_state.yml
-  - docassemble.mlhframeworkBH:mlh_interview_framework.yml
+  - docassemble.mlhframework:mlh_interview_framework.yml
 
 ---
 modules:
@@ -173,7 +173,7 @@ subquestion: |
 
 ---
 id: thirty days
-question: Did you move out more than 30 days ago (before ${ today() - timedelta(days=30) } )?
+question: Did you move out more than 30 days ago (before ${ today() - timedelta(days=30) })?
 fields:
   - no label: thirty_days
     datatype: yesnoradio
