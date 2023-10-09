@@ -614,7 +614,7 @@ subquestion: |
 generic object: ALDocumentBundle
 template: x.include_editable_documents
 content: |
-  Include an editable copy and stuff and things
+  Include an editable copy
 
 
 ---
@@ -638,7 +638,7 @@ attachment:
   filename: letter_to_landlord_security_next_steps
   variable name: letter_to_landlord_security_Post_interview_instructions[i]
   docx template file: letter_to_landlord_security_next_steps.docx
-  skip undefined: True
+  skip undefined: False
 
 ---
 attachment:
