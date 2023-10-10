@@ -74,10 +74,15 @@ code: |
   MLH_standard_intro_pages
   intro_what_you_need
   nav.set_section("section_tenant")
-  if not thirty_days:
+
+  vacation_date
+  if (vacation_date + timedelta(days=30) > today()):
     thirty_days_not_passed
-  if not yesno_forwarding_address:
-    user_not_eligible
+
+  notification_date
+  if vacation_date + timedelta(days=4) < notification_date:
+    late_forwarding_kickout
+
   if any_deposit_returned:
     deposit_returned_kickout
   users.gather()
@@ -88,8 +93,6 @@ code: |
 
   nav.set_section("section_rental")
   rental_address.address
-  vacation_date
-  notification_date
   type_of_delivery
   deposit_amount
 
@@ -101,7 +104,7 @@ code: |
   nav.set_section("section_done")
   interview_order_letter_to_landlord_security = True
   MLH_outro_saving_answers
-  if not thirty_days or (vacation_date + timedelta(days=30) > today()):
+  if (vacation_date + timedelta(days=30) > today()):
     letter_date_notification
   MLH_outro_download_forms
 
@@ -124,7 +127,7 @@ code: |
 id: MLH intro landing
 continue button field: MLH_intro_landing
 question: |
-  Welcome to ${ AL_ORGANIZATION_TITLE }’s ${ MLH_interview_short_title } tool.
+  Welcome to ${ AL_ORGANIZATION_TITLE }’s ${ MLH_interview_short_title } tool
 subquestion: |
   This tool will help you write a personalized letter to your landlord requesting **return of your security deposit**.
   
@@ -144,7 +147,7 @@ subquestion: |
 # overrides standard screen
 id: MLH intro time
 mandatory: False
-question: Using this Tool
+question: Using this tool
 subquestion: |
   It should take you between 5 and 20 minutes to answer all the questions.
   
@@ -170,27 +173,16 @@ subquestion: |
   * The **amount** of the deposit; 
 
 ---
-id: thirty days
-question: Did you move out more than 30 days ago (before ${ today() - timedelta(days=30) })?
-fields:
-  - no label: thirty_days
-    datatype: yesnoradio
----
 id: thirty days not passed
 continue button field: thirty_days_not_passed
-question: This letter should be used if you moved out more than 30 days ago.
+question: It has not been 30 days
 subquestion: |
-    You can still use this tool now, but **wait to send the letter until 30 days have gone by and your landlord has still not returned your security deposit or given you a list of damages.**
+  This letter should only be used if you moved out more than 30 days ago.
 
----
-id: provided forwarding address
-question: |
-  Did you give your landlord your **forwarding address** within **four days** of moving out of your old home?
-subquestion: |
-  ${ collapse_template(forwarding_address_template) }
-fields:
-  - no label: yesno_forwarding_address
-    datatype: yesnoradio
+  You can still use this tool now to create your letter, but **wait to send the letter until 30 days have gone by and your landlord has still not returned your security deposit or given you a list of damages.** 
+  
+  This means that you should not send your letter before ${ letter_date }.
+
 ---
 template: forwarding_address_template
 subject: |
@@ -199,10 +191,17 @@ content: |
   Within **four days** of moving out of your old home, you must give your landlord your **new address** in writing. If you don’t want to give your landlord your new address, you can provide a different forwarding address like a P.O. Box. If you do this, make sure you **regularly pick up** any mail sent to that address.
 
 ---
-id: user not eligible 
-event: user_not_eligible
-question: You cannot use this letter to request the return of your security deposit. 
-subquestion: Please return to Michigan Legal Help and [visit the Security Deposit Resource page to learn more](https://michiganlegalhelp.org/self-help-tools/housing/security-deposit-help-tenants).
+mandatory: True
+id: late forwarding kickout
+event: late_forwarding_kickout
+question: |
+  You cannot use this tool
+subquestion: |
+  You must notify your landlord in writing within four days after you move of a forwarding address where you can be reached and where you will receive mail. If you don’t provide your new address, your landlord does not have to give you an itemized list of damages and they can keep your security deposit until you do something to get it back.
+
+  To learn more, please read [Your Security Deposit: What It Is and How to Get It Back](https://michiganlegalhelp.org/resources/housing/your-security-deposit-what-it-and-how-get-it-back).
+  
+  ${ action_button_html("https://michiganlegalhelp.org/resources/housing/your-security-deposit-what-it-and-how-get-it-back", label="Exit", color="danger", size="md") }
 
 ---
 id: any deposit returned
@@ -212,15 +211,16 @@ fields:
     datatype: yesnoradio
 ---
 id: deposit returned kickout
-continue button field: deposit_returned_kickout
+event: deposit_returned_kickout
 question: |
-  This letter should only be used if your landlord has not returned your security deposit or given you an itemized list of damages for why they have kept some or all of your security deposit. 
+  You cannot use this tool
 subquestion: |
+  This letter should only be used if your landlord has not returned your security deposit or given you an itemized list of damages for why they have kept some or all of your security deposit. 
+  
   If you got an itemized list of damages, you have 7 days to respond. To learn more, please read [Your Security Deposit: What It Is and How to Get It Back](https://michiganlegalhelp.org/resources/housing/your-security-deposit-what-it-and-how-get-it-back).
   
   ${ action_button_html("https://michiganlegalhelp.org/resources/housing/your-security-deposit-what-it-and-how-get-it-back", label="Exit", color="danger", size="md") }
-buttons:
-  - None
+
 ---
 id: phone number
 question: |
@@ -316,7 +316,7 @@ id: When did you vacate the property
 question: |
   When did you move out of the rental property?
 subquestion: |
-  Insert the date manually, or choose it from the drop-down calendar by clicking on the calendar icon. <i class="fa-regular fa-calendar"></i>
+  Insert the date manually, or choose it from the drop-down calendar by clicking on the <i class="fa-regular fa-calendar"></i> calendar icon.
 fields:
   - "Move-out date": vacation_date
     datatype: date
@@ -326,7 +326,9 @@ id: notification date
 question: |
   When did you tell your landlord your forwarding address?
 subquestion: |
-  Insert the date manually, or choose it from the drop-down calendar by clicking on the calendar icon. <i class="fa-regular fa-calendar"></i>
+  ${ collapse_template(forwarding_address_template) }
+  
+  Insert the date manually, or choose it from the drop-down calendar by clicking on the <i class="fa-regular fa-calendar"></i> calendar icon.
 fields:
   - "Date of Notification": notification_date
     datatype: date
@@ -417,7 +419,7 @@ fields:
 
 ---
 id: letter date
-question: Letter date in the future
+question: Don't send your letter yet!
 subquestion: |
   Because it has not been 30 days since you moved out, the date shown on your letter will be ${ letter_date }. **Do not send your letter before that date!**
 continue button field: letter_date_notification
@@ -425,7 +427,7 @@ continue button field: letter_date_notification
 ---
 reconsider: True
 code: |
-  if not thirty_days or (vacation_date + timedelta(days=30) > today()):
+  if (vacation_date + timedelta(days=30) > today()):
     letter_date = vacation_date + timedelta(days=30)
   else:
     letter_date = today()
@@ -566,7 +568,7 @@ confirm: True
 ---
 continue button field: other_parties.revisit
 question: |
-  Edit landlord information
+  Edit Landlord Information
 subquestion: |
   ${ other_parties.table }
 
