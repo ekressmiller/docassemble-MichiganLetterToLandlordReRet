@@ -100,6 +100,8 @@ code: |
   other_parties.gather()
   other_parties[0].address.address
   other_parties[0].phone_number
+  if type_of_delivery == "e-mailed":
+    other_parties[0].email
 
   nav.set_section("section_done")
   interview_order_letter_to_landlord_security = True
@@ -232,10 +234,6 @@ subquestion: |
   % endif
 fields:  
   - Phone number: users[0].phone_number
-validation code: |
-  if not phone_number_is_valid(users[0].phone_number):
-    validation_error("Hey, dummy!")
-  phone_number = phone_number_formatted(users[0].phone_number)
 
 ---
 template: phone_info_template
