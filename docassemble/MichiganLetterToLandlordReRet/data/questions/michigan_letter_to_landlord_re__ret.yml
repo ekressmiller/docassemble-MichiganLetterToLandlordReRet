@@ -1,6 +1,5 @@
 include:
   - docassemble.mlhframework:mlh_interview_framework.yml
-
 ---
 modules:
   - datetime
@@ -71,8 +70,8 @@ code: |
   user_role = "plaintiff"
   user_ask_role = "plaintiff"
   
-  MLH_standard_intro_pages
-  intro_what_you_need
+  #MLH_standard_intro_pages
+  #intro_what_you_need
   nav.set_section("section_tenant")
 
   vacation_date
@@ -338,12 +337,13 @@ question: |
 #subquestion: |
 #  Choose one of the three options.
 fields:
-  - no label: type_of_delivery
+  - Notice was: type_of_delivery
     input type: radio
     choices:
       - Hand-delivered: hand-delivered
       - Mailed: mailed
       - E-mailed: e-mailed
+      - Texted: texted
 
 ---
 id: rental address
@@ -392,28 +392,53 @@ fields:
       other_parties[i].name_fields(person_or_business='unsure')
 
 ---
+sets:
+  - other_parties[i].address.address
+  - other_parties[i].address.city
+  - other_parties[i].address.zip
+  - other_parties[i].address.unit
+  - other_parties[i].address.state
+  - other_parties[i].address.country
+id: landlord address
+question: |
+  What is ${ other_parties[i].possessive('address') }?
+subquestion: |
+  % if type_of_delivery == 'mailed':
+  Enter the address that you sent your forwarding address to.
+  % else:
+  ${ collapse_template(landlord_address_template) }
+  % endif
+fields:
+  - code: |
+      other_parties[i].address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
+
+---
+id: landlord phone
+question: |
+  What is ${ other_parties[i].possessive('phone number') }?
+subquestion: |
+  % if type_of_delivery == 'texted':
+  Enter the phone number that you texted your forwarding address to.
+  % endif
+fields:
+  - Phone number: other_parties[i].phone_number
+
+---
+id: landlord email
+question: |
+  What is ${ other_parties[i].possessive('e-mail address') }?
+subquestion: |
+  % if type_of_delivery == 'e-mailed':
+  Enter the e-mail address that you sent your forwarding address to.
+  % endif
+fields:
+  - E-mail address: other_parties[i].email
+
+---
 template: landlord_address_template
 subject: What if my landlord's address has changed?
 content: |
   You should send or deliver the letter to the address you landlord gave you in the lease. If your landlord's address has changed since then, you should have gotten notice of it in writing. If you know your landlord's new address, send the letter to that address.
-
----
-sets:
-  - x.address.address
-  - x.address.city
-  - x.address.zip
-  - x.address.unit
-  - x.address.state
-  - x.address.country
-id: persons address
-generic object: ALIndividual
-question: |
-  What is ${ x.possessive('address') }?
-subquestion:
-  ${ collapse_template(landlord_address_template) }
-fields:
-  - code: |
-      x.address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
 
 ---
 id: letter date
