@@ -94,6 +94,8 @@ code: |
   nav.set_section("section_rental")
   rental_address.address
   type_of_delivery
+  if type_of_delivery == 'provided':
+    type_of_delivery_other
   deposit_amount
 
   nav.set_section("section_landlord")
@@ -101,7 +103,7 @@ code: |
   other_parties[0].address.address
   if type_of_delivery == 'mailed':
     notification_address_same
-  if type_of_delivery == 'e-mailed':
+  elif type_of_delivery == 'e-mailed':
     other_parties[0].email
   other_parties[0].phone_number
 
@@ -343,6 +345,18 @@ fields:
       - Mailed: mailed
       - E-mailed: e-mailed
       - Texted: texted
+      - Other: provided  # "provided" so that it is easily used on template
+
+---
+id: type of delivery other
+question: |
+  How did you tell your landlord your forwarding address?
+subquestion: |
+  In a short sentence, please explain how you informed your landlord of your
+  forwarding address.
+fields:
+  - Please explain: type_of_delivery_other
+    maxlength: 100
 
 ---
 id: rental address
@@ -598,11 +612,29 @@ review:
   - Edit: type_of_delivery
     button: |
       **Type of Delivery**:
+      % if type_of_delivery == 'provided':
+      Other
+      
+      ${ type_of_delivery_other }
+      % elif type_of_delivery == 'texted':
+      Text to 
+      ${ phone_number_formatted(other_parties[0].phone_number) }
+      % elif type_of_delivery == 'e-mailed':
+      E-mail to 
+      ${ other_parties[0].email }
+      % else:
       ${ type_of_delivery }
-      % if type_of_delivery == 'texted':
-
-      Phone: ${ other_parties[0].phone_number }
       % endif
+  - Edit: notification_address_same
+    button: |
+      **Notification Address** (where you sent your forwarding address):
+
+      % if notification_address_same:
+      ${ other_parties[0].address.block() }
+      % else:
+      ${ notification_address.block() }
+      % endif
+    show if: type_of_delivery == 'mailed'
   - Edit: deposit_amount
     button: |
       **Deposit Amount**:
@@ -616,16 +648,6 @@ review:
 
           ${ item.address.on_one_line() }
       % endfor
-  - Edit: notification_address_same
-    button: |
-      **Notification Address** (where you sent your forwarding address):
-
-      % if notification_address_same:
-      ${ other_parties[0].address.block() }
-      % else:
-      ${ notification_address.block() }
-      % endif
-    show if: type_of_delivery == 'mailed'
 
 ---
 continue button field: users.revisit
