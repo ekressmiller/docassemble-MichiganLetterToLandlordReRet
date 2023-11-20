@@ -53,6 +53,7 @@ code: |
 objects:
   - forwarding_address: ALAddress
   - rental_address: ALAddress
+  - notification_address: ALAddress
   - other_parties: ALPeopleList.using(ask_number=True,target_number=1)
   - users: ALPeopleList.using(there_are_any=True)
 
@@ -70,8 +71,8 @@ code: |
   user_role = "plaintiff"
   user_ask_role = "plaintiff"
   
-  MLH_standard_intro_pages
-  intro_what_you_need
+  #MLH_standard_intro_pages
+  #intro_what_you_need
   nav.set_section("section_tenant")
 
   vacation_date
@@ -86,7 +87,7 @@ code: |
     deposit_returned_kickout
   users.gather()
   users[0].phone_number
-  users[0].phone_number = phone_number_formatted(users[0].phone_number)
+  #users[0].phone_number = phone_number_formatted(users[0].phone_number)
   set_parts(subtitle=str(users))
   forwarding_address.address
 
@@ -98,9 +99,11 @@ code: |
   nav.set_section("section_landlord")
   other_parties.gather()
   other_parties[0].address.address
-  other_parties[0].phone_number
-  if type_of_delivery == "e-mailed":
+  if type_of_delivery == 'mailed':
+    notification_address_same
+  if type_of_delivery == 'e-mailed':
     other_parties[0].email
+  other_parties[0].phone_number
 
   nav.set_section("section_done")
   interview_order_letter_to_landlord_security = True
@@ -227,12 +230,11 @@ id: phone number
 question: |
   What is your phone number?
 subquestion: |
-  It is important that your landlord have another way of reaching out to you other than sending mail to your forwarding address.
-  % if False:
-  ${ collapse_template(phone_info_template) }
-  % endif
+  It is important that your landlord have another way of reaching out to you other than 
+  sending mail to your forwarding address. *If none, leave blank.*
 fields:  
   - Phone number: users[0].phone_number
+    required: False
 
 ---
 template: phone_info_template
@@ -300,10 +302,7 @@ sets:
 question: |
   What is the forwarding address you gave to your landlord?
 subquestion: |
-  Insert your forwarding address below, as given to your landlord.
-  
   ${ collapse_template(forwarding_address_template) }
-  
 fields:
   - code: |
       forwarding_address.address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)  
@@ -365,7 +364,8 @@ id: How much was the deposit
 question: |
   How much was the deposit?
 subquestion: |
-  If you don't know, look at your lease and any receipts you have from when you moved into the apartment.
+  If you don't know, look at your lease and any receipts you have from when you 
+  moved into the residence.
 fields:
   - "Deposit amount": deposit_amount
     datatype: currency
@@ -403,25 +403,65 @@ id: landlord address
 question: |
   What is ${ other_parties[i].possessive('address') }?
 subquestion: |
-  % if type_of_delivery == 'mailed':
-  Enter the address that you sent your forwarding address to.
-  % else:
   ${ collapse_template(landlord_address_template) }
-  % endif
 fields:
   - code: |
       other_parties[i].address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
 
 ---
+id: notification address
+question: |
+  Did you mail your forwarding address to this same address?
+subquestion: |
+  ${ other_parties[0].address.block() }
+fields:
+  - no label: notification_address_same
+    datatype: yesnoradio
+  - note: "**Enter the address where you mailed your forwarding address**."
+    js show if: 
+      val("notification_address_same") == false
+  - ${ notification_address.address_label}: notification_address.address
+    address autocomplete: True
+    js show if: 
+      val("notification_address_same") == false
+  - ${ notification_address.unit_label}: notification_address.unit
+    required: False
+    js show if: 
+      val("notification_address_same") == false
+  - ${ notification_address.city_label}: notification_address.city
+    js show if: 
+      val("notification_address_same") == false
+  - ${ notification_address.state_label}: notification_address.state
+    code: |
+      states_list(country_code=AL_DEFAULT_COUNTRY)
+    default: ${ AL_DEFAULT_STATE }
+    js show if: 
+      val("notification_address_same") == false
+  - ${ notification_address.zip_label}: notification_address.zip
+    js show if: 
+      val("notification_address_same") == false
+
+
+---
+#reconsider: True
 id: landlord phone
 question: |
-  What is ${ other_parties[i].possessive('phone number') }?
+  What is ${ other_parties[0].possessive('phone number') }?
 subquestion: |
   % if type_of_delivery == 'texted':
   Enter the phone number that you texted your forwarding address to.
+  % else:
+  *If none, leave blank.*
   % endif
 fields:
-  - Phone number: other_parties[i].phone_number
+  - Phone number: other_parties[0].phone_number
+    required: type_of_delivery == 'texted'
+depends on:
+  # This ensures that the landlord's phone number is collected (and required) if the user changes
+  # the delivery type during the Review screen. It also means that the phone number page will show
+  # up ANY time the delivery type is changed, though not required unless it was 'texted.' 
+  # This is a minor inconvenience and all of these scenarios are pretty unlikely.
+  - type_of_delivery
 
 ---
 id: landlord email
@@ -515,6 +555,13 @@ code: |
 # # # # # # # # # # # # # Review Pages # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # Review Pages # # # # # # # # # # # # # # # #
 
+#---
+#reconsider: True
+#code: |
+#  service_phone = other_parties[0].phone_number
+#depends on:
+#  - type_of_delivery
+
 ---
 id: letter to landlord review screen
 event: review_letter_to_landlord_security
@@ -530,29 +577,11 @@ review:
       % for item in users:
         * ${ item }
       % endfor
-
   - Edit: forwarding_address.address
     button: |
       **Forwarding Address**
 
       ${ forwarding_address }
-  - Edit: other_parties.revisit
-    button: |
-      **Landlord Information**
-
-      % for item in other_parties:
-        * ${ item }
-
-          ${ item.address.on_one_line() }
-      % endfor
-  - Edit: deposit_amount
-    button: |
-      **Deposit Amount**:
-      ${ currency(deposit_amount) }
-  - Edit: type_of_delivery
-    button: |
-      **Type of Delivery**:
-      ${ type_of_delivery }
   - Edit: rental_address.address
     button: |
       **Rental Address**:
@@ -566,6 +595,37 @@ review:
     button: |
       **Date of Notification**:
       ${ notification_date }
+  - Edit: type_of_delivery
+    button: |
+      **Type of Delivery**:
+      ${ type_of_delivery }
+      % if type_of_delivery == 'texted':
+
+      Phone: ${ other_parties[0].phone_number }
+      % endif
+  - Edit: deposit_amount
+    button: |
+      **Deposit Amount**:
+      ${ currency(deposit_amount) }
+  - Edit: other_parties.revisit
+    button: |
+      **Landlord Information**
+
+      % for item in other_parties:
+        * ${ item }
+
+          ${ item.address.on_one_line() }
+      % endfor
+  - Edit: notification_address_same
+    button: |
+      **Notification Address** (where you sent your forwarding address):
+
+      % if notification_address_same:
+      ${ other_parties[0].address.block() }
+      % else:
+      ${ notification_address.block() }
+      % endif
+    show if: type_of_delivery == 'mailed'
 
 ---
 continue button field: users.revisit
@@ -622,7 +682,7 @@ event: download_page
 question: |
   All done
 subquestion: |
-  Thank you ${users[0].name.first}. Your letter is ready to download and deliver.
+  Thank you ${users[0].name.first}. Your letter is ready to download, sign, and deliver.
   
   You can view and download your letter below. Click the **Edit answers** button to make changes or fix any mistakes.
 
