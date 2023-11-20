@@ -71,8 +71,8 @@ code: |
   user_role = "plaintiff"
   user_ask_role = "plaintiff"
   
-  #MLH_standard_intro_pages
-  #intro_what_you_need
+  MLH_standard_intro_pages
+  intro_what_you_need
   nav.set_section("section_tenant")
 
   vacation_date
