@@ -11,24 +11,12 @@ metadata:
   title: Do-It-Yourself Letter to Landlord - Security Deposit
   short title: Letter to Landlord - Security Deposit
   subtitle: Helps you write a letter to your former landlord to get your security deposit back.
+  description: |
+    This tool helps someone in Michigan write a letter to a landlord to get their security deposit returned to them.
+  typical role: "plaintiff"
   authors:
     - Bianca Stella Bruschi
     - Brett Harrison
-
----
-# AssemblyLine-level metadata
-mandatory: True
-variable name: interview_metadata["main_interview_key"]
-data:
-  #title: Do-It-Yourself Letter to Landlord (Security Deposit) (AL)
-  #short title: Letter to Landlord - Security Deposit (AL)
-  description: |
-    This tool helps someone in Michigan write a letter to a landlord to get their security deposit returned to them.
-  allowed courts: []
-  categories: []
-  typical role: "plaintiff"
-  generate download screen: True
-
 ---
 sections:
   - section_intro: Introduction
@@ -40,7 +28,6 @@ sections:
 ---
 id: interview config code block
 code: |
-  # interview_metadata['main_interview_key'] = 'letter_to_landlord_security'
   github_repo_name =  'docassemble-MichiganLetterToLandlordReRet'
   al_form_type = "letter"
   MLH_instructions_included = True
@@ -66,7 +53,7 @@ comment: |
 id: interview order letter to landlord security deposit
 mandatory: True
 code: |
-  allowed_courts = interview_metadata["main_interview_key"]["allowed courts"]
+  allowed_courts = []
   nav.set_section("section_intro")
   user_role = "plaintiff"
   user_ask_role = "plaintiff"
