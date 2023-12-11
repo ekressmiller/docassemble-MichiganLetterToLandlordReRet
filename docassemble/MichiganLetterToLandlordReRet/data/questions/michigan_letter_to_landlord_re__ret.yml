@@ -14,6 +14,8 @@ metadata:
   description: |
     This tool helps someone in Michigan write a letter to a landlord to get their security deposit returned to them.
   typical role: "plaintiff"
+  help_page_title: Security Deposit Help for Tenants
+  help_page_url: https://michiganlegalhelp.org/resources/housing/security-deposit-help-tenants
   authors:
     - Bianca Stella Bruschi
     - Brett Harrison
