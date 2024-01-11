@@ -65,11 +65,11 @@ code: |
   user_ask_role = "plaintiff"
 
   # Brought these 4 over from framework since we don't want to ask pii on this
-  #MLH_intro_landing
-  #MLH_intro_navigation
-  #MLH_intro_saving_answers
-  #MLH_intro_time
-  #intro_what_you_need
+  MLH_intro_landing
+  MLH_intro_navigation
+  MLH_intro_saving_answers
+  MLH_intro_time
+  intro_what_you_need
   nav.set_section("section_tenant")
 
   vacation_date
