@@ -196,8 +196,6 @@ subquestion: |
 
   To learn more, please read [Your Security Deposit: What It Is and How to Get It Back](https://michiganlegalhelp.org/resources/housing/your-security-deposit-what-it-and-how-get-it-back).
   
-  ${ action_button_html("https://michiganlegalhelp.org/resources/housing/your-security-deposit-what-it-and-how-get-it-back", label="Exit", color="danger", size="md") }
-
 ---
 id: any deposit returned
 question: Has your landlord returned your security deposit or given you an itemized list of damages?
@@ -214,8 +212,6 @@ subquestion: |
   
   If you got an itemized list of damages, you have 7 days to respond. To learn more, please read [Your Security Deposit: What It Is and How to Get It Back](https://michiganlegalhelp.org/resources/housing/your-security-deposit-what-it-and-how-get-it-back).
   
-  ${ action_button_html("https://michiganlegalhelp.org/resources/housing/your-security-deposit-what-it-and-how-get-it-back", label="Exit", color="danger", size="md") }
-
 ---
 id: phone number
 question: |
