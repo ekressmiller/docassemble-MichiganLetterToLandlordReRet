@@ -81,6 +81,9 @@ code: |
     late_forwarding_kickout
 
   if any_deposit_returned:
+    deposit_amount_returned
+  deposit_amount
+  if list_of_damages:
     deposit_returned_kickout
   users.gather()
   users[0].phone_number
@@ -93,7 +96,6 @@ code: |
   type_of_delivery
   if type_of_delivery == 'provided':
     type_of_delivery_other
-  deposit_amount
 
   nav.set_section("section_landlord")
   other_parties.gather()
@@ -137,8 +139,9 @@ subquestion: |
   Use this tool if:
   
   * it has been more than **30 days** since you moved out of your old home,
-  * you gave your previous landlord your **forwarding address** within **four days** of moving out of the home, **and**
-  * you did **not** get your **security deposit** or **a list of damages** from your previous landlord.
+  * you gave your previous landlord your **forwarding address** within **four days** of moving out of the home, 
+  * you did **not** get your **security deposit** or **a list of damages** from your previous landlord, ***and**
+  * you have **not** gotten anything in writing explaining why your landlord kept some or all of your security deposit.
 
   ${ collapse_template(forwarding_address_template) }
   
@@ -209,10 +212,17 @@ subquestion: |
 
 ---
 id: any deposit returned
-question: Has your landlord returned your security deposit or given you an itemized list of damages?
+question: Did your landlord give you any of your security deposit back?
 fields:
   - no label: any_deposit_returned
     datatype: yesnoradio
+---
+id: deposit amount returned
+question: How much did your landlord give you back?
+fields:
+  - Amount returned: deposit_amount_returned
+    datatype: currency
+    min: 0
 ---
 id: deposit returned kickout
 event: deposit_returned_kickout
@@ -222,6 +232,29 @@ subquestion: |
   This letter should only be used if your landlord has not returned your security deposit or given you an itemized list of damages for why they have kept some or all of your security deposit. 
   
   If you got an itemized list of damages, you have 7 days to respond. To learn more, please read [Your Security Deposit: What It Is and How to Get It Back](https://michiganlegalhelp.org/resources/housing/your-security-deposit-what-it-and-how-get-it-back).
+
+---
+id: deposit amount
+question: |
+  How much was the deposit?
+subquestion: |
+  If you don't know, look at your lease and any receipts you have from when you 
+  moved into the home.
+fields:
+  - "Deposit amount": deposit_amount
+    datatype: currency
+    min: 0
+
+---
+id: list of damages
+question: List of damages
+subquestion: |
+  Did your landlord give you a written list of damages or reasons they kept all or part 
+  of your security deposit (like unpaid rent or unpaid utilities)? This can also include 
+  if your landlord has a money judgment against you from an eviction case.
+fields:
+  - no label: list_of_damages
+    datatype: yesnoradio
 
 ---
 id: phone number
@@ -370,18 +403,6 @@ fields:
       rental_address.address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)  
 
 ---
-id: How much was the deposit
-question: |
-  How much was the deposit?
-subquestion: |
-  If you don't know, look at your lease and any receipts you have from when you 
-  moved into the home.
-fields:
-  - "Deposit amount": deposit_amount
-    datatype: currency
-    min: 0
-
----
 # to override "Is this a person, or a business?" in ql_baseline.yml
 # TODO - is there an easier way to override just the prompt?
 generic object: ALIndividual
@@ -450,7 +471,6 @@ fields:
   - ${ notification_address.zip_label}: notification_address.zip
     js show if: 
       val("notification_address_same") == false
-
 
 ---
 #reconsider: True
@@ -560,7 +580,6 @@ code: |
   signature_fields = []
 
 
-
 ---
 # Ensures that the proper follow-up fields are asked based on delivery type.
 code: |
@@ -574,16 +593,15 @@ code: |
   other_parties[0].phone_number
   recompute_delivery = True
 
-# # # # # # # # # # # # # Review Pages # # # # # # # # # # # # # # # #
-# # # # # # # # # # # # # Review Pages # # # # # # # # # # # # # # # #
-# # # # # # # # # # # # # Review Pages # # # # # # # # # # # # # # # #
+---
+code: |
+  if any_deposit_returned:
+    deposit_amount_returned
+  recompute_amount_returned = True
 
-#---
-#reconsider: True
-#code: |
-#  service_phone = other_parties[0].phone_number
-#depends on:
-#  - type_of_delivery
+# # # # # # # # # # # # # Review Pages # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # Review Pages # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # Review Pages # # # # # # # # # # # # # # # #
 
 ---
 id: letter to landlord review screen
@@ -651,6 +669,22 @@ review:
     button: |
       **Deposit Amount**:
       ${ currency(deposit_amount) }
+  - Edit: 
+    - any_deposit_returned
+    - recompute: 
+      - recompute_amount_returned
+    button: |
+      **Deposit Returned**:
+      % if any_deposit_returned:
+      Yes
+      % else:
+      None
+      % endif
+  - Edit: deposit_amount_returned
+    button: |
+      **Amount of Deposit Returned**:
+      ${ currency(deposit_amount_returned) }
+    show if: any_deposit_returned
   - Edit: other_parties.revisit
     button: |
       **Landlord Information**
