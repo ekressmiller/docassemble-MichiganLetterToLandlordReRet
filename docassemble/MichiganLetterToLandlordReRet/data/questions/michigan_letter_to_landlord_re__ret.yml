@@ -262,7 +262,6 @@ subquestion: |
   sending mail to your forwarding address. 
 fields:  
   - Phone: users[0].phone_number
-    required: False
     show if:
       variable: users[0].no_phone_number
       is: False
@@ -819,5 +818,3 @@ attachment:
   variable name: letter_to_landlord_security_attachment[i]
   docx template file: letter_to_landlord_security.docx
   skip undefined: False
-
-###
