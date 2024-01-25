@@ -9,7 +9,7 @@ modules:
 # See https://docassemble.org/docs/initial.html
 metadata:
   title: Do-It-Yourself Letter to Landlord - Security Deposit
-  short title: Letter to Landlord - Security Deposit
+  short title: Security Deposit Letter
   subtitle: Helps you write a letter to your former landlord to get your security deposit back.
   description: |
     This tool helps someone in Michigan write a letter to a landlord to get their security deposit returned to them.
@@ -44,7 +44,11 @@ objects:
   - rental_address: ALAddress
   - notification_address: ALAddress
   - other_parties: ALPeopleList.using(ask_number=True,target_number=1)
-  - users: ALPeopleList.using(there_are_any=True)
+  - users: ALPeopleList.using(there_are_any=True, complete_attribute=['name.first','phone_number'])
+
+---
+features:
+  progress bar: False
 
 ---
 # # # # # # # # # # # # # # Interview Order # # # # # # # # # # # # # # # #
@@ -59,8 +63,12 @@ code: |
   nav.set_section("section_intro")
   user_role = "plaintiff"
   user_ask_role = "plaintiff"
-  
-  MLH_standard_intro_pages
+
+  # Brought these 4 over from framework since we don't want to ask pii on this
+  MLH_intro_landing
+  MLH_intro_navigation
+  MLH_intro_saving_answers
+  MLH_intro_time
   intro_what_you_need
   nav.set_section("section_tenant")
 
@@ -73,10 +81,12 @@ code: |
     late_forwarding_kickout
 
   if any_deposit_returned:
+    deposit_amount_returned
+  deposit_amount
+  if list_of_damages:
     deposit_returned_kickout
   users.gather()
   users[0].phone_number
-  #users[0].phone_number = phone_number_formatted(users[0].phone_number)
   set_parts(subtitle=str(users))
   forwarding_address.address
 
@@ -85,7 +95,6 @@ code: |
   type_of_delivery
   if type_of_delivery == 'provided':
     type_of_delivery_other
-  deposit_amount
 
   nav.set_section("section_landlord")
   other_parties.gather()
@@ -124,17 +133,18 @@ continue button field: MLH_intro_landing
 question: |
   Welcome to ${ AL_ORGANIZATION_TITLE }’s ${ MLH_interview_short_title } tool
 subquestion: |
-  This tool will help you write a personalized letter to your landlord requesting **return of your security deposit**.
+  This tool will help you write a personalized letter to your landlord requesting **the return of your security deposit**.
   
   Use this tool if:
   
   * it has been more than **30 days** since you moved out of your old home,
-  * you gave your previous landlord your **forwarding address** within **four days** of moving out of the home, and
-  * you have **not** gotten your **security deposit** from your previous landlord.
+  * you gave your previous landlord your **forwarding address** within **four days** of moving out of the home, 
+  * you did **not** get your **security deposit** or **a list of damages** from your previous landlord, ***and**
+  * you have **not** gotten anything in writing explaining why your landlord kept some or all of your security deposit.
 
   ${ collapse_template(forwarding_address_template) }
   
-  If you did **not** give your landlord your forwarding address within four days, the timelines in this letter do not apply and **you should not use this tool**. If that is the case, click [here](https://michiganlegalhelp.org/resources/housing/security-deposit-help-tenants) to return to the Michigan Legal Help web site to learn more.
+  If you did **not** give your landlord your forwarding address within four days, the timelines in this letter do not apply and **you should not use this tool**. If that is the case, return to the [Michigan Legal Help website](https://michiganlegalhelp.org/resources/housing/security-deposit-help-tenants) to learn more.
   
   Otherwise, click the **${MLH_continue_button_label}** button below.
 
@@ -159,14 +169,15 @@ continue button field: intro_what_you_need
 question: |
   Getting ready
 subquestion: |
-  You need to have this information at hand to complete the tool: 
+  You will need this information to complete the tool: 
   
   * Your **contact** information (forwarding address, phone number, e-mail etc.);
   * If **your roommates or co-tenants** are signing this letter with you, you should have their **contact** information ready (name, address, phone number);
   * Your **landlord**'s name and **contact** information (name, address, phone number);
-  * The **rental** address you moved out from;
-  * The **amount** of the deposit; 
+  * The **rental** address you moved out from; **and**
+  * The **amount** of the deposit.
 
+  You should be able to find all of this information on your lease agreement.
 ---
 id: thirty days not passed
 continue button field: thirty_days_not_passed
@@ -183,7 +194,7 @@ template: forwarding_address_template
 subject: |
   What is a forwarding address?
 content: |
-  Within **four days** of moving out of your old home, you must give your landlord your **new address** in writing. If you don’t want to give your landlord your new address, you can provide a different forwarding address like a P.O. Box. If you do this, make sure you **regularly pick up** any mail sent to that address.
+  A forwarding address is your **new address**. Within **four days** of moving out of your old home, you must give your landlord your **new address** in writing. If you don’t want to give your landlord your new address, you can provide a different forwarding address like a P.O. Box. If you do this, make sure you **regularly pick up** any mail sent to that address.
 
 ---
 mandatory: True
@@ -198,10 +209,17 @@ subquestion: |
   
 ---
 id: any deposit returned
-question: Has your landlord returned your security deposit or given you an itemized list of damages?
+question: Did your landlord give you any of your security deposit back?
 fields:
   - no label: any_deposit_returned
     datatype: yesnoradio
+---
+id: deposit amount returned
+question: How much did your landlord give you back?
+fields:
+  - Amount returned: deposit_amount_returned
+    datatype: currency
+    min: 0
 ---
 id: deposit returned kickout
 event: deposit_returned_kickout
@@ -211,17 +229,46 @@ subquestion: |
   This letter should only be used if your landlord has not returned your security deposit or given you an itemized list of damages for why they have kept some or all of your security deposit. 
   
   If you got an itemized list of damages, you have 7 days to respond. To learn more, please read [Your Security Deposit: What It Is and How to Get It Back](https://michiganlegalhelp.org/resources/housing/your-security-deposit-what-it-and-how-get-it-back).
-  
+
+---
+id: deposit amount
+question: |
+  How much was the deposit?
+subquestion: |
+  If you don't know, look at your lease and any receipts you have from when you 
+  moved into the home.
+fields:
+  - "Deposit amount": deposit_amount
+    datatype: currency
+    min: 0
+
+---
+id: list of damages
+question: List of damages
+subquestion: |
+  Did your landlord give you a written list of damages or reasons they kept all or part 
+  of your security deposit (like unpaid rent or unpaid utilities)? This can also include 
+  if your landlord has a money judgment against you from an eviction case.
+fields:
+  - no label: list_of_damages
+    datatype: yesnoradio
+
 ---
 id: phone number
 question: |
   What is your phone number?
 subquestion: |
   It is important that your landlord have another way of reaching out to you other than 
-  sending mail to your forwarding address. *If none, leave blank.*
+  sending mail to your forwarding address. 
 fields:  
-  - Phone number: users[0].phone_number
+  - Phone: users[0].phone_number
     required: False
+    show if:
+      variable: users[0].no_phone_number
+      is: False
+  - I do not have a phone number: users[0].no_phone_number
+    required: False
+    datatype: yesno
 
 ---
 template: phone_info_template
@@ -229,6 +276,21 @@ subject: |
   Why do I need to give my phone number?
 content: |
   It is important that your landlord have another way of reaching out to you other than sending mail to your forwarding address. 
+
+# These code blocks are copied over from framework. Without these here, the interview
+# gets stuck on the above question asking for the user's phone number. So, it feels like
+# a bit of a hack, but it works... bharrison
+# * * * BEGIN from framework
+---
+generic object: ALIndividual
+code: |
+  if x.no_phone_number:
+    x.phone_number = "Does not have phone"
+---
+code: |
+  if users[0].no_phone_number:
+    users[0].phone_number = "Does not have phone"
+# * * * END from framework
 
 ---
 code: |
@@ -299,7 +361,7 @@ id: When did you vacate the property
 question: |
   When did you move out of the rental property?
 subquestion: |
-  Insert the date manually, or choose it from the drop-down calendar by clicking on the <i class="fa-regular fa-calendar"></i> calendar icon.
+  Enter the date below.
 fields:
   - "Move-out date": vacation_date
     datatype: date
@@ -311,7 +373,7 @@ question: |
 subquestion: |
   ${ collapse_template(forwarding_address_template) }
   
-  Insert the date manually, or choose it from the drop-down calendar by clicking on the <i class="fa-regular fa-calendar"></i> calendar icon.
+  Enter the date below.
 fields:
   - "Date of Notification": notification_date
     datatype: date
@@ -357,18 +419,6 @@ question: |
 fields:
   - code: |
       rental_address.address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)  
-
----
-id: How much was the deposit
-question: |
-  How much was the deposit?
-subquestion: |
-  If you don't know, look at your lease and any receipts you have from when you 
-  moved into the residence.
-fields:
-  - "Deposit amount": deposit_amount
-    datatype: currency
-    min: 0
 
 ---
 # to override "Is this a person, or a business?" in ql_baseline.yml
@@ -440,9 +490,7 @@ fields:
     js show if: 
       val("notification_address_same") == false
 
-
 ---
-#reconsider: True
 id: landlord phone
 question: |
   What is ${ other_parties[0].possessive('phone number') }?
@@ -475,7 +523,7 @@ fields:
 
 ---
 template: landlord_address_template
-subject: What if my landlord's address has changed?
+subject: What address should I use?
 content: |
   You should send or deliver the letter to the address you landlord gave you in the lease. If your landlord's address has changed since then, you should have gotten notice of it in writing. If you know your landlord's new address, send the letter to that address.
 
@@ -510,7 +558,7 @@ subquestion: |
 
   Be sure to review your ${ MLH_form_type } to make sure all of the information is correct.
   
-  For more information about your legal problem, see the [Tenant's Rights Resource page](https://michiganlegalhelp.org/resources/tenants-rights) of michiganlegalhelp.org.
+  For more information about your legal problem, see the [Tenant's Rights Resource page](https://michiganlegalhelp.org/resources/tenants-rights) on MichiganLegalHelp.org.
 continue button field: MLH_outro_download_forms
 
 ---
@@ -549,17 +597,28 @@ code: |
   signature_fields = []
 
 
+---
+# Ensures that the proper follow-up fields are asked based on delivery type.
+code: |
+  if type_of_delivery == 'mailed':
+    notification_address_same
+  elif type_of_delivery == 'e-mailed':
+    other_parties[0].email
+  if defined('other_parties[0].phone_number') and other_parties[0].phone_number is None and type_of_delivery == 'texted':
+    # If the phone number was skipped the first time through, ask it again
+    del other_parties[0].phone_number
+  other_parties[0].phone_number
+  recompute_delivery = True
+
+---
+code: |
+  if any_deposit_returned:
+    deposit_amount_returned
+  recompute_amount_returned = True
 
 # # # # # # # # # # # # # Review Pages # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # Review Pages # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # Review Pages # # # # # # # # # # # # # # # #
-
-#---
-#reconsider: True
-#code: |
-#  service_phone = other_parties[0].phone_number
-#depends on:
-#  - type_of_delivery
 
 ---
 id: letter to landlord review screen
@@ -594,7 +653,10 @@ review:
     button: |
       **Date of Notification**:
       ${ notification_date }
-  - Edit: type_of_delivery
+  - Edit:
+    - type_of_delivery
+    - recompute:
+      - recompute_delivery  
     button: |
       **Type of Delivery**:
       % if type_of_delivery == 'provided':
@@ -624,6 +686,22 @@ review:
     button: |
       **Deposit Amount**:
       ${ currency(deposit_amount) }
+  - Edit: 
+    - any_deposit_returned
+    - recompute: 
+      - recompute_amount_returned
+    button: |
+      **Deposit Returned**:
+      % if any_deposit_returned:
+      Yes
+      % else:
+      None
+      % endif
+  - Edit: deposit_amount_returned
+    button: |
+      **Amount of Deposit Returned**:
+      ${ currency(deposit_amount_returned) }
+    show if: any_deposit_returned
   - Edit: other_parties.revisit
     button: |
       **Landlord Information**
@@ -649,10 +727,11 @@ columns:
   - Name: |
       row_item.name.full() if defined("row_item.name.first") else ""
   - Phone number: |
-      phone_number_formatted(row_item.phone_number) if defined("row_item.phone_number") else ""
+      phone_number_formatted(row_item.phone_number) if defined ("row_item.no_phone_number") and not row_item.no_phone_number and defined("row_item.phone_number") else "None"
 edit:
   - name.first
   - phone_number
+  - no_phone_number
 confirm: True
 
 ---
@@ -731,7 +810,8 @@ attachment:
   variable name: letter_to_landlord_security_Post_interview_instructions[i]
   docx template file: letter_to_landlord_security_next_steps.docx
   skip undefined: False
-
+  valid formats:
+    - pdf
 ---
 attachment:
   name: letter to landlord
