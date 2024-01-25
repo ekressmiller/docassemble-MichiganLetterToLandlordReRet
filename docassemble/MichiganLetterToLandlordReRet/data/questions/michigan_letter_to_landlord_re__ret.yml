@@ -44,7 +44,7 @@ objects:
   - rental_address: ALAddress
   - notification_address: ALAddress
   - other_parties: ALPeopleList.using(ask_number=True,target_number=1)
-  - users: ALPeopleList.using(there_are_any=True)
+  - users: ALPeopleList.using(there_are_any=True, complete_attribute=['name.first','phone_number'])
 
 ---
 features:
@@ -87,7 +87,6 @@ code: |
     deposit_returned_kickout
   users.gather()
   users[0].phone_number
-  #users[0].phone_number = phone_number_formatted(users[0].phone_number)
   set_parts(subtitle=str(users))
   forwarding_address.address
 
@@ -262,10 +261,16 @@ question: |
   What is your phone number?
 subquestion: |
   It is important that your landlord have another way of reaching out to you other than 
-  sending mail to your forwarding address. *If none, leave blank.*
+  sending mail to your forwarding address. 
 fields:  
-  - Phone number: users[0].phone_number
+  - Phone: users[0].phone_number
     required: False
+    show if:
+      variable: users[0].no_phone_number
+      is: False
+  - I do not have a phone number: users[0].no_phone_number
+    required: False
+    datatype: yesno
 
 ---
 template: phone_info_template
@@ -273,6 +278,21 @@ subject: |
   Why do I need to give my phone number?
 content: |
   It is important that your landlord have another way of reaching out to you other than sending mail to your forwarding address. 
+
+# These code blocks are copied over from framework. Without these here, the interview
+# gets stuck on the above question asking for the user's phone number. So, it feels like
+# a bit of a hack, but it works... bharrison
+# * * * BEGIN from framework
+---
+generic object: ALIndividual
+code: |
+  if x.no_phone_number:
+    x.phone_number = "Does not have phone"
+---
+code: |
+  if users[0].no_phone_number:
+    users[0].phone_number = "Does not have phone"
+# * * * END from framework
 
 ---
 code: |
@@ -473,7 +493,6 @@ fields:
       val("notification_address_same") == false
 
 ---
-#reconsider: True
 id: landlord phone
 question: |
   What is ${ other_parties[0].possessive('phone number') }?
@@ -710,10 +729,11 @@ columns:
   - Name: |
       row_item.name.full() if defined("row_item.name.first") else ""
   - Phone number: |
-      phone_number_formatted(row_item.phone_number) if defined("row_item.phone_number") else ""
+      phone_number_formatted(row_item.phone_number) if defined ("row_item.no_phone_number") and not row_item.no_phone_number and defined("row_item.phone_number") else "None"
 edit:
   - name.first
   - phone_number
+  - no_phone_number
 confirm: True
 
 ---
