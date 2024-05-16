@@ -26,6 +26,7 @@ sections:
   - section_rental: Rental Information
   - section_landlord: Landlord Information
   - section_done: Success
+  - review_full: "✎ <u>Review / Edit</u>"
 
 ---
 id: interview config code block
@@ -49,7 +50,8 @@ objects:
 ---
 features:
   progress bar: True
-  progress bar multiplier: 0.02
+  #progress bar multiplier: 0.03
+  progress bar method: stepped
   show progress bar percentage: True
 
 ---
@@ -62,6 +64,7 @@ id: interview order letter to landlord security deposit
 mandatory: True
 code: |
   allowed_courts = []
+  nav.set_section('review_full')
   nav.set_section("section_intro")
   user_role = "plaintiff"
   user_ask_role = "plaintiff"
@@ -353,6 +356,7 @@ fields:
 
 ---
 id: When did you vacate the property
+progress: 25
 question: |
   When did you move out of the rental property?
 subquestion: |
@@ -375,6 +379,7 @@ fields:
 
 ---
 id: notification method
+progress: 75
 question: |
   How did you tell your landlord your forwarding address?
 #subquestion: |
@@ -402,6 +407,7 @@ fields:
 
 ---
 id: rental address
+progress: 50
 sets:
   - rental_address.address
   - rental_address.city
@@ -582,7 +588,7 @@ subquestion: |
   Click the image to open it in a new tab. Click the **Edit answers** button
   to edit your answers.
 
-  ${ action_button_html(url_action('review_letter_to_landlord_security'), label='Edit answers', color='info') }
+  ${ action_button_html(url_action('review_full'), label='Edit answers', color='info') }
   
   Remember to come back to this window to continue and sign your form.
 continue button field: letter_to_landlord_security_preview_question    
@@ -617,7 +623,7 @@ code: |
 
 ---
 id: letter to landlord review screen
-event: review_letter_to_landlord_security
+event: review_full
 question: |
   Review your answers
 subquestion: |
@@ -759,6 +765,7 @@ confirm: True
 # # # # # # # # # # # # # # Documents # # # # # # # # # # # # # # # #
 
 id: letter_to_landlord_security DownloadScreen
+progress: 100
 event: download_page
 question: |
   All done
@@ -767,7 +774,7 @@ subquestion: |
   
   You can view and download your letter below. Click the **Edit answers** button to make changes or fix any mistakes.
 
-  ${ action_button_html(url_action('review_letter_to_landlord_security'), label='Edit answers', color='info') }
+  ${ action_button_html(url_action('review_full'), label='Edit answers', color='info') }
   
   
   ${ al_user_bundle.download_list_html() }
