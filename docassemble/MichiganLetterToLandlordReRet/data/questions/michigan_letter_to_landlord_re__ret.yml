@@ -38,6 +38,8 @@ code: |
   MLH_court_forms = False
   MLH_time_min = 5
   MLH_time_max = 20
+  accessible_instructions_link = "https://michiganlegalhelp.org/step/15195"
+  resource_page_link = "https://michiganlegalhelp.org/node/242"
 
 ---
 objects:
@@ -118,7 +120,7 @@ code: |
   MLH_outro_download_forms
 
   # Store anonymous data for analytics / statistics
-  store_variables_snapshot({"zip": users[0].address.zip})
+  store_variables_snapshot({"zip": forwarding_address.zip})
   download_page
 
 # # # # # # # # # # # # # # End Interview Order # # # # # # # # # # # # # # # #
@@ -793,13 +795,14 @@ content: |
 ---
 # ALDocument objects specify the metadata for each template
 objects:
-  - letter_to_landlord_security_Post_interview_instructions: ALDocument.using(title="Instructions", filename="letter_to_landlord_security_next_steps.docx", enabled=True, has_addendum=False)
+  - instructions: ALDocument.using(title="Instructions", filename="letter_to_landlord_security_next_steps.docx", enabled=True, has_addendum=False)
   - letter_to_landlord_security_attachment: ALDocument.using(title=MLH_interview_title, filename="letter_to_landlord_security", enabled=True, has_addendum=False)
 
 ---
 # Bundles group the ALDocuments into separate downloads, such as for court and for the user
 objects:
-  - al_user_bundle: ALDocumentBundle.using(elements=[letter_to_landlord_security_Post_interview_instructions, letter_to_landlord_security_attachment], filename="letter_to_landlord_security", title="All forms to download for your records", enabled=True)
+  - al_cover_bundle: ALDocumentBundle.using(elements=[cover_sheet_template, instructions], filename="Instructions - Do not send this", title="Instructions", enabled=True)
+  - al_user_bundle: ALDocumentBundle.using(elements=[al_cover_bundle, letter_to_landlord_security_attachment], filename="letter_to_landlord_security", title="All forms to download for your records", enabled=True)
   - al_recipient_bundle: ALDocumentBundle.using(elements=[letter_to_landlord_security_attachment],  filename="letter_to_landlord_security", title="All forms to file", enabled=True)
 
 ---
@@ -809,7 +812,7 @@ objects:
 attachment:
   name: Post-interview-Instructions
   filename: letter_to_landlord_security_next_steps
-  variable name: letter_to_landlord_security_Post_interview_instructions[i]
+  variable name: instructions[i]
   docx template file: letter_to_landlord_security_next_steps.docx
   skip undefined: False
   valid formats:
