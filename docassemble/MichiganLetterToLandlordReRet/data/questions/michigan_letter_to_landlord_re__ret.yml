@@ -144,7 +144,7 @@ code: |
 
 ---
 # Overrides standard landing page
-id: MLH intro landing
+id: MLH intro landing FirstScreen
 continue button field: MLH_intro_landing
 question: |
   Welcome to ${ AL_ORGANIZATION_TITLE }’s ${ MLH_interview_short_title } tool
