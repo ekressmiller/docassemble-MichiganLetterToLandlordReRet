@@ -38,8 +38,8 @@ code: |
   MLH_court_forms = False
   MLH_time_min = 5
   MLH_time_max = 20
-  accessible_instructions_link = "https://michiganlegalhelp.org/step/15195"
-  resource_page_link = "https://michiganlegalhelp.org/node/242"
+  accessible_instructions_link = "[https://michiganlegalhelp.org/step/15195](https://michiganlegalhelp.org/step/15195)"
+  resource_page_link = "[https://michiganlegalhelp.org/node/242](https://michiganlegalhelp.org/node/242)"
 
 ---
 objects:
@@ -52,9 +52,8 @@ objects:
 ---
 features:
   progress bar: True
-  #progress bar multiplier: 0.03
+  progress bar multiplier: 0.2
   progress bar method: stepped
-  show progress bar percentage: True
 
 ---
 # # # # # # # # # # # # # # Interview Order # # # # # # # # # # # # # # # #
@@ -145,7 +144,7 @@ code: |
 
 ---
 # Overrides standard landing page
-id: MLH intro landing
+id: MLH intro landing FirstScreen
 continue button field: MLH_intro_landing
 question: |
   Welcome to ${ AL_ORGANIZATION_TITLE }’s ${ MLH_interview_short_title } tool
@@ -579,6 +578,7 @@ subquestion: |
   
   For more information about your legal problem, see the [Tenant's Rights Resource page](https://michiganlegalhelp.org/resources/tenants-rights) on MichiganLegalHelp.org.
 continue button field: MLH_outro_download_forms
+progress: 98
 
 ---
 # Used in template to dynamically insert "I" vs "We" for example
