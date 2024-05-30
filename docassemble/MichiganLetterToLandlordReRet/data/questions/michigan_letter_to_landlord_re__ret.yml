@@ -38,8 +38,8 @@ code: |
   MLH_court_forms = False
   MLH_time_min = 5
   MLH_time_max = 20
-  accessible_instructions_link = "https://michiganlegalhelp.org/step/15195"
-  resource_page_link = "https://michiganlegalhelp.org/node/242"
+  accessible_instructions_link = "[https://michiganlegalhelp.org/step/15195](https://michiganlegalhelp.org/step/15195)"
+  resource_page_link = "[https://michiganlegalhelp.org/node/242](https://michiganlegalhelp.org/node/242)"
 
 ---
 objects:
