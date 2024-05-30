@@ -52,9 +52,8 @@ objects:
 ---
 features:
   progress bar: True
-  #progress bar multiplier: 0.03
+  progress bar multiplier: 0.2
   progress bar method: stepped
-  show progress bar percentage: True
 
 ---
 # # # # # # # # # # # # # # Interview Order # # # # # # # # # # # # # # # #
@@ -579,6 +578,7 @@ subquestion: |
   
   For more information about your legal problem, see the [Tenant's Rights Resource page](https://michiganlegalhelp.org/resources/tenants-rights) on MichiganLegalHelp.org.
 continue button field: MLH_outro_download_forms
+progress: 98
 
 ---
 # Used in template to dynamically insert "I" vs "We" for example
