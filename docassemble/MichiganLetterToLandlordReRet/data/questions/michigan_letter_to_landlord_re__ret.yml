@@ -31,7 +31,7 @@ sections:
 ---
 id: interview config code block
 code: |
-  github_repo_name =  'docassemble-MichiganLetterToLandlordReRet'
+  github_repo_name = 'docassemble-MichiganLetterToLandlordReRet' if get_config('debug') else 'docassemble-UserFeedback'
   al_form_type = "letter"
   MLH_instructions_included = True
   MLH_form_type = "letter"
