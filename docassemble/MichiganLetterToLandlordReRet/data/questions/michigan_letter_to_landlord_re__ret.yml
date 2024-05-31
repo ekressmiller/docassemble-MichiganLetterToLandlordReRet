@@ -78,8 +78,9 @@ code: |
   user_role = "plaintiff"
   user_ask_role = "plaintiff"
 
-  # Brought these 4 over from framework since we don't want to ask pii on this
+  # Brought these 5 over from framework since we don't want to ask pii on this
   MLH_intro_landing
+  MLH_agree_terms
   MLH_intro_navigation
   MLH_intro_saving_answers
   MLH_intro_time
@@ -812,7 +813,7 @@ content: |
 # ALDocument objects specify the metadata for each template
 objects:
   - instructions: ALDocument.using(title="Instructions", filename="letter_to_landlord_security_next_steps.docx", enabled=True, has_addendum=False)
-  - letter_to_landlord_security_attachment: ALDocument.using(title=MLH_interview_title, filename="letter_to_landlord_security", enabled=True, has_addendum=False)
+  - letter_to_landlord_security_attachment: ALDocument.using(title="Letter to Landlord - Security Deposit", filename="letter_to_landlord_security", enabled=True, has_addendum=False)
 
 ---
 # Bundles group the ALDocuments into separate downloads, such as for court and for the user
