@@ -25,7 +25,7 @@ sections:
   - section_tenant: Tenant Information
   - section_rental: Rental Information
   - section_landlord: Landlord Information
-  - section_done: Success
+  - section_done: Get Your Letter
   - review_full: "✎ <u>Review / Edit</u>"
 
 ---
@@ -787,7 +787,7 @@ id: letter_to_landlord_security DownloadScreen
 progress: 100
 event: download_page
 question: |
-  All done
+  Get your letter
 subquestion: |
   Thank you ${users[0].name.first}. Your letter is ready to download, sign, and deliver.
   
