@@ -156,7 +156,7 @@ subquestion: |
   
   * it has been more than **30 days** since you moved out of your old home,
   * you gave your previous landlord your **forwarding address** within **four days** of moving out of the home, 
-  * you did **not** get your **security deposit** or **a list of damages** from your previous landlord, ***and**
+  * you did **not** get your **security deposit** or **a list of damages** from your previous landlord, **and**
   * you have **not** gotten anything in writing explaining why your landlord kept some or all of your security deposit.
 
   ${ collapse_template(forwarding_address_template) }
