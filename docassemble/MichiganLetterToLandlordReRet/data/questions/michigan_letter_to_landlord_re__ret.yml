@@ -81,8 +81,7 @@ code: |
   # Brought these 5 over from framework since we don't want to ask pii on this
   MLH_intro_landing
   MLH_agree_terms
-  MLH_intro_navigation
-  MLH_intro_saving_answers
+  MLH_intro_navigate_save
   MLH_intro_time
   intro_what_you_need
   nav.set_section("section_tenant")
@@ -169,7 +168,7 @@ subquestion: |
 # overrides standard screen
 id: MLH intro time
 mandatory: False
-question: Using this tool
+question: Answer the questions to get your ${ MLH_form_type }
 subquestion: |
   It should take you between 5 and 20 minutes to answer all the questions.
   
