@@ -330,7 +330,18 @@ subquestion: |
 fields:
   - no label: users.there_is_another
     datatype: yesnoradio
-
+---
+id: your name
+sets:
+    - users[0].name.first
+    - users[0].name.last
+    - users[0].name.middle
+    - users[0].name.suffix
+question:  |
+  What is your name?
+fields:
+  - code: |
+      users[0].name_fields()
 ---
 sets:
   - users[i].name.first
