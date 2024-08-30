@@ -64,14 +64,7 @@ comment: |
 id: interview order letter to landlord security deposit
 mandatory: True
 code: |
-  store_variables_snapshot(
-      key='intro',
-      persistent=True,
-      data={
-          "snap_time": str(current_datetime().format_datetime()),
-      },
-  )
-
+  snapshot_start
   allowed_courts = []
   nav.set_section('review_full')
   nav.set_section("section_intro")
@@ -125,22 +118,22 @@ code: |
   if (vacation_date + timedelta(days=30) > today()):
     letter_date_notification
   MLH_outro_download_forms
-
-  # Store anonymous data for analytics / statistics
-  store_variables_snapshot(
-    key='final',
-    persistent=True,
-    data={
-      "zip": forwarding_address.zip,
-      "number_of_forms": len(al_recipient_bundle.enabled_documents()),
-      "snap_time": str(current_datetime().format_datetime()),
-    },
-  )
+  snapshot_download
   download_page
 
 # # # # # # # # # # # # # # End Interview Order # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # End Interview Order # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # End Interview Order # # # # # # # # # # # # # # # #
+
+---
+code: |
+  stuff_to_snapshot['zip'] = forwarding_address.zip
+  stuff_to_snapshot['number_of_forms'] = len(al_recipient_bundle.enabled_documents())
+  stuff_to_snapshot['end_time'] = str(current_datetime().format_datetime(format='yyyy-MM-dd h:mm a'))
+  if snapshot_dv_question == True:
+    stuff_to_snapshot['dv_present'] = showifdef('snapshot_dv_present')
+  reconsider('snapshot_interview_state')
+  snapshot_download = True
 
 ---
 # Overrides standard landing page
