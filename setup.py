@@ -44,7 +44,7 @@ def find_package_data(where='.', package='', exclude=standard_exclude, exclude_d
     return out
 
 setup(name='docassemble.MichiganLetterToLandlordReRet',
-      version='0.16',
+      version='0.17',
       description=('DIY tool for writing a Letter to Landlord (Security Deposit)'),
       long_description='# docassemble.MichiganLetterToLandlordReRet\r\n\r\nDIY tool for writing a Letter to Landlord (Security Deposit)\r\n\r\n## Author\r\n\r\n* Jan 2024  Incorporate MLH testing feedback. bharrison\r\n* Oct 2023  Various enhancements per initial testing feedback. bharrison\r\n* Aug 2023  Refactor and complete. Brett Harrison\r\n* 2023      Initial dev by Suffolk member Bianca Stella Bruschi\r\n\r\n',
       long_description_content_type='text/markdown',
@@ -54,7 +54,7 @@ setup(name='docassemble.MichiganLetterToLandlordReRet',
       url='https://michiganlegalhelp.org/resources/housing',
       packages=find_packages(),
       namespace_packages=['docassemble'],
-      install_requires=['docassemble.AssemblyLine>=2.28.1'],
+      install_requires=['docassemble.AssemblyLine>=3.1.0'],
       zip_safe=False,
       package_data=find_package_data(where='docassemble/MichiganLetterToLandlordReRet/', package='docassemble.MichiganLetterToLandlordReRet'),
      )
