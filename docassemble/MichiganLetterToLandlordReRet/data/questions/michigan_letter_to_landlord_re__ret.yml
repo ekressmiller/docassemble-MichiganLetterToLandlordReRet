@@ -38,9 +38,18 @@ code: |
   MLH_court_forms = False
   MLH_time_min = 5
   MLH_time_max = 20
-  accessible_instructions_link = "[https://michiganlegalhelp.org/step/15195](https://michiganlegalhelp.org/step/15195)"
-  resource_page_link = "[https://michiganlegalhelp.org/node/242](https://michiganlegalhelp.org/node/242)"
-
+---
+code: |
+  resource_page_url_only = "https://michiganlegalhelp.org/node/242"
+  resource_page_name = "Security Deposit Help for Tenants"
+  survey_link_url_only = "https://www.surveymonkey.com/r/2LWSNYR"
+---
+template: survey_embed_script
+content: |
+  <script>
+    (function(t,e,s,n){var o,a,c;t.SMCX=t.SMCX||[],e.getElementById(n)||(o=e.getElementsByTagName(s),a=o[o.length-1],c=e.createElement(s),c.type="text/javascript",c.async=!0,c.id=n,c.src="https://widget.surveymonkey.com/collect/website/js/tRaiETqnLgj758hTBazgd8fhFkvW0zQNGwjNZ9m2wq5ht32kY57YrbXH2UdE81Bi.js",a.parentNode.insertBefore(c,a));
+    })(window,document,"script","smcx-sdk");
+  </script>
 ---
 objects:
   - forwarding_address: ALAddress
@@ -119,7 +128,7 @@ code: |
     letter_date_notification
   MLH_outro_download_forms
   snapshot_download
-  download_page
+  MLH_download
 
 # # # # # # # # # # # # # # End Interview Order # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # End Interview Order # # # # # # # # # # # # # # # #
@@ -781,30 +790,9 @@ edit:
   - phone_number
 confirm: True
 
----
 # # # # # # # # # # # # # # Documents # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # Documents # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # Documents # # # # # # # # # # # # # # # #
-
-id: letter_to_landlord_security DownloadScreen
-progress: 100
-event: download_page
-question: |
-  Get your letter
-subquestion: |
-  Thank you ${users[0].name.first}. Your letter is ready to download, sign, and deliver.
-  
-  You can view and download your letter below. Click the **Edit answers** button to make changes or fix any mistakes.
-
-  ${ action_button_html(url_action('review_full'), label='Edit answers', color='info') }
-  
-  
-  ${ al_user_bundle.download_list_html() }
-  
-  ${ al_user_bundle.send_button_html(show_editable_checkbox=False) }
-
-#progress: 100
-
 ---
 generic object: ALDocumentBundle
 template: x.include_editable_documents
@@ -815,14 +803,13 @@ content: |
 ---
 # ALDocument objects specify the metadata for each template
 objects:
-  - instructions: ALDocument.using(title="Instructions", filename="letter_to_landlord_security_next_steps.docx", enabled=True, has_addendum=False)
+  - instructions: ALDocument.using(title="Instructions", filename="Instructions - Do not file this", enabled=True, has_addendum=False)
   - letter_to_landlord_security_attachment: ALDocument.using(title="Letter to Landlord - Security Deposit", filename="letter_to_landlord_security", enabled=True, has_addendum=False)
 
 ---
 # Bundles group the ALDocuments into separate downloads, such as for court and for the user
 objects:
-  - al_cover_bundle: ALDocumentBundle.using(elements=[cover_sheet_template, instructions], filename="Instructions - Do not send this", title="Instructions", enabled=True)
-  - al_user_bundle: ALDocumentBundle.using(elements=[al_cover_bundle, letter_to_landlord_security_attachment], filename="letter_to_landlord_security", title="All forms to download for your records", enabled=True)
+  - al_user_bundle: ALDocumentBundle.using(elements=[instructions, letter_to_landlord_security_attachment], filename="letter_to_landlord_security", title="All forms and instructions", enabled=True)
   - al_recipient_bundle: ALDocumentBundle.using(elements=[letter_to_landlord_security_attachment],  filename="letter_to_landlord_security", title="All forms to file", enabled=True)
 
 ---
@@ -834,7 +821,7 @@ attachment:
   filename: letter_to_landlord_security_next_steps
   variable name: instructions[i]
   docx template file: letter_to_landlord_security_next_steps.docx
-  skip undefined: False
+  tagged pdf: True
   valid formats:
     - pdf
 ---

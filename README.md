@@ -4,6 +4,8 @@ DIY tool for writing a Letter to Landlord (Security Deposit)
 
 ## Author
 
+## Changelog
+* 9/30/24   Update cover letter; download screen; user survey
 * Jan 2024  Incorporate MLH testing feedback. bharrison
 * Oct 2023  Various enhancements per initial testing feedback. bharrison
 * Aug 2023  Refactor and complete. Brett Harrison
